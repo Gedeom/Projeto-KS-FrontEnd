@@ -103,9 +103,36 @@
                   <v-row>
                     <v-col
                         cols="12">
+                      <v-file-input
+                          placeholder="Upload Foto"
+                          label="Avatar"
+                          accept="image/png, image/jpeg, image/bmp"
+                          prepend-icon="mdi-camera"
+                          :rules="rules"
+                          id="files"
+                          @change="getfileString"
+                      >
+                        <template v-slot:selection="{ text }">
+                          <v-chip
+                              small
+                              label
+                              color="primary"
+                          >
+                            {{ text }}
+                          </v-chip>
+                        </template>
+                      </v-file-input>
+                    </v-col>
+                    <v-col
+                        cols="12">
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                        cols="12">
                       <v-text-field type="password"
-                          v-model="editedItem.password"
-                          label="Senha"
+                                    v-model="editedItem.password"
+                                    label="Senha"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -175,6 +202,11 @@ export default {
   data: () => ({
     errorM: false,
     errors: [],
+    files: [],
+    filesTring: '',
+    rules: [
+      value => !value || value.size < 2000000 || 'Avatar Precisa ser menor que 2 MB!',
+    ],
     success: false,
     messageError: '',
     messageSucesso: '',
@@ -240,6 +272,20 @@ export default {
         this.messageError = error.response.data.error;
       }).finally();
     },
+    getfileString() {
+      var file = document.querySelector('input[type="file"]').files[0];
+      this.getBase64(file).then(
+          data => this.filesTring = data
+      );
+    },
+    getBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    },
 
     editItem(item) {
       this.editedIndex = this.users.indexOf(item)
@@ -281,48 +327,57 @@ export default {
       })
     },
 
+
     //salvar
     save() {
+      setTimeout(()=>{
+        if (this.editedIndex > -1) {
+          this.$http.put(`http://localhost:8080/api/user/${this.editedItem.id}`, {
+            email: this.editedItem.email,
+            name: this.editedItem.nome,
+            password: this.editedItem.password,
+            img: this.filesTring
+          }).then(result => {
+            this.success = true
+            this.messageSucesso = result.data.msg;
+            this.initialize();
+          }).catch((error) => {
+            if (error.response.status == 403) {
+              this.errors = error.response.data.errors;
+              return false;
+            }
+            this.errorM = true;
+            this.messageError = error.response.data.error;
+          }).finally();
 
-      if (this.editedIndex > -1) {
-
-        this.$http.put(`http://localhost:8080/api/user/${this.editedItem.id}`, {
-          email: this.editedItem.email, name: this.editedItem.nome, password: this.editedItem.password
-        }).then(result => {
-          this.success = true
-          this.messageSucesso = result.data.msg;
-          this.initialize();
-        }).catch((error) => {
-          if (error.response.status == 403) {
-            this.errors = error.response.data.errors;
-            return false;
-          }
-          this.errorM = true;
-          this.messageError = error.response.data.error;
-        }).finally();
-
-        //atualizar
-      } else {
-
-
-        this.$http.post('http://localhost:8080/api/user', {
-          email: this.editedItem.email, name: this.editedItem.nome, password: this.editedItem.password
-        }).then(result => {
-          this.success = true
-          this.messageSucesso = result.data.msg;
-          this.initialize();
-        }).catch((error) => {
-          if (error.response.status == 403) {
-            this.errors = error.response.data.errors;
-            return false;
-          }
-          this.errorM = true;
-          this.messageError = error.response.data.error;
-        }).finally();
+          //atualizar
+        } else {
 
 
-      }
-      this.close()
+          this.$http.post('http://localhost:8080/api/user', {
+            email: this.editedItem.email,
+            name: this.editedItem.nome,
+            password: this.editedItem.password,
+            img: this.filesTring
+          }).then(result => {
+            this.success = true
+            this.messageSucesso = result.data.msg;
+            this.initialize();
+          }).catch((error) => {
+            if (error.response.status == 403) {
+              this.errors = error.response.data.errors;
+              return false;
+            }
+            this.errorM = true;
+            this.messageError = error.response.data.error;
+          }).finally();
+
+
+        }
+
+        this.close()
+      },2000)
+
     },
   },
 }

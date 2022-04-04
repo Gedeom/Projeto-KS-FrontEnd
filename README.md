@@ -1,4 +1,12 @@
-# projeto-ks-front
+# Projeto FrontEnd para teste de conhecimento
+
+Passos para execução: 
+
+- Via Docker:
+
+Ter o docker instalado e executar: docker-compose build && docker-compose up -d
+
+- Sem docker seguir os passos abaixo
 
 ## Project setup
 ```

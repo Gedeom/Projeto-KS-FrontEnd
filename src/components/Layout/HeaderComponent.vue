@@ -27,10 +27,9 @@
         <v-tab v-if="logado" :to="{name:'Dicas'}">
           Dicas
         </v-tab>
-      </v-tabs>
 
+        <v-spacer></v-spacer>
 
-      <v-tabs right >
         <v-tab :to="{name:'Login'}" v-if="logado === false">
           Login
         </v-tab>
@@ -45,11 +44,15 @@
         </v-tab>
 
         <v-tab v-if="logado">
-          <v-icon>mdi-account</v-icon>
+          <v-img :src="imgSrc" height="65"
+                 width="100"></v-img>
           {{ getNameLogado }}
 
         </v-tab>
       </v-tabs>
+
+
+
     </v-app-bar>
   </div>
 </template>
@@ -60,7 +63,8 @@ export default {
   name: 'HeaderComponent',
   data() {
     return {
-      autenticado: this.$store.state.UsersModule.name != null
+      autenticado: this.$store.state.UsersModule.name != null,
+      imgSrc: localStorage.getItem('img')
     }
   },
   methods: {
@@ -107,5 +111,7 @@ export default {
 </script>
 
 <style>
-
+img {
+  height:100vh;
+}
 </style>

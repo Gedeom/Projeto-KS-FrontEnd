@@ -100,10 +100,12 @@ export default {
         })
             .then(resp => {
               this.$http.defaults.headers.common['Authorization'] = 'Bearer ' + resp.data.token;
+              console.log(resp.data.user);
               // this.$store.commit('LOGIN_SUCCESS', resp);
               localStorage.setItem('token', resp.data.token);
               localStorage.setItem('user_id', resp.data.user.id);
               localStorage.setItem('name', resp.data.user.name);
+              localStorage.setItem('img', resp.data.user.img);
               this.success = true;
 
               setTimeout(() => {
