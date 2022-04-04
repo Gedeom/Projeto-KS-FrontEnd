@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:8080"
+      - "8061:8080"
     container_name: vue-ui
     volumes:
       - .:/usr/app/
